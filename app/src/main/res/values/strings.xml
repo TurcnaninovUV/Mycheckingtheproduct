@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">My checking the product</string>
+    <string name="login">Login</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+    <string name="menu_save">Save</string>
+    <string name="description_select_photo">Select photo</string>
+    <string name="description_take_photo">Take photo</string>
+</resources>

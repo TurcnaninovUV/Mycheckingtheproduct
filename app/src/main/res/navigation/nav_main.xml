@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_main"
+    app:startDestination="@id/fotoFragment">
+
+    <fragment
+        android:id="@+id/fragmentSignIn"
+        android:name="com.example.mycheckingtheproduct.app.activity.FragmentSignIn"
+        android:label="fragment_sign_in"
+        tools:layout="@layout/fragment_sign_in" >
+        <action
+            android:id="@+id/action_fragmentSignIn_to_fotoFragment"
+            app:destination="@id/fotoFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/fotoFragment"
+        android:name="com.example.mycheckingtheproduct.app.activity.PhotoFragment"
+        android:label="FotoFragment" />
+</navigation>
