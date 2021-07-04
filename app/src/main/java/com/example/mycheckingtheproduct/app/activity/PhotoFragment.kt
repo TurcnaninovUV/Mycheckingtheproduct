@@ -1,24 +1,26 @@
 package com.example.mycheckingtheproduct.app.activity
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.*
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.mycheckingtheproduct.R
 import com.example.mycheckingtheproduct.app.util.AndroidUtils
-import com.example.mycheckingtheproduct.app.util.StringArg
 import com.example.mycheckingtheproduct.app.viewModel.PhotoProductViewModel
 import com.example.mycheckingtheproduct.databinding.FragmentPhotoBinding
 import com.github.dhaval2404.imagepicker.ImagePicker
+import com.google.android.material.snackbar.Snackbar
+import java.io.File
 
 class PhotoFragment : Fragment() {
 
     private val photoRequestCode = 1
     private val cameraRequestCode = 2
-
-    companion object {
-        var Bundle.textArg: String? by StringArg
-    }
 
     private val viewModel: PhotoProductViewModel by viewModels(
         ownerProducer = ::requireParentFragment
@@ -31,30 +33,30 @@ class PhotoFragment : Fragment() {
         setHasOptionsMenu(true)
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        inflater.inflate(R.menu.menu_new_product, menu)
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        return when (item.itemId) {
-//            R.id.save -> {
-//                fragmentBinding?.let {
-//                    viewModel.changeContent(it.edit.text.toString())
-//                    viewModel.save()
-//                    AndroidUtils.hideKeyboard(requireView())
-//                }
-//                true
-//            }
-//            else -> super.onOptionsItemSelected(item)
-//        }
-//    }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_new_product, menu)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.save -> {
+                fragmentBinding?.let {
+                    viewModel.sendPhoto()
+                    AndroidUtils.hideKeyboard(requireView())
+                }
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         val binding = FragmentPhotoBinding.inflate(
             inflater,
             container,
@@ -83,13 +85,49 @@ class PhotoFragment : Fragment() {
                 .cameraOnly()
                 .start(cameraRequestCode)
         }
+
+        binding.removePhoto.setOnClickListener {
+            viewModel.changePhoto(null, null)
+        }
+
+        viewModel.photo.observe(viewLifecycleOwner) {
+            if (it.uri == null) {
+                binding.photoContainer.visibility = View.GONE
+                return@observe
+            }
+
+            binding.photoContainer.visibility = View.VISIBLE
+            binding.photo.setImageURI(it.uri)
+        }
+
         return binding.root
     }
 
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_new_product, menu)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == ImagePicker.RESULT_ERROR) {
+            fragmentBinding?.let {
+                Snackbar.make(it.root, ImagePicker.getError(data), Snackbar.LENGTH_LONG).show()
+            }
+            return
+        }
+        if (resultCode == Activity.RESULT_OK && requestCode == photoRequestCode) {
+            val uri: Uri? = data?.data
+            val file: File? = ImagePicker.getFile(data)
+            viewModel.changePhoto(uri, file)
+            return
+        }
+        if (resultCode == Activity.RESULT_OK && requestCode == cameraRequestCode) {
+            val uri: Uri? = data?.data
+            val file: File? = ImagePicker.getFile(data)
+            viewModel.changePhoto(uri, file)
+            return
+        }
     }
 
+    override fun onDestroyView() {
+        fragmentBinding = null
+        super.onDestroyView()
+    }
 
 }

@@ -4,6 +4,7 @@ import androidx.viewbinding.BuildConfig
 import com.example.mycheckingtheproduct.app.auth.AppAuth
 import com.example.mycheckingtheproduct.app.auth.AuthState
 import com.example.mycheckingtheproduct.app.dto.Photo
+import io.realm.RealmList
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -42,12 +43,14 @@ private val retrofit = Retrofit.Builder()
 
 interface ProductApiService {
 
+@Headers("Content-type: multipart/form-data")
     @Multipart
     @POST("sendfile")
-    suspend fun sendPhoto(@Part photo: List<MultipartBody.Part>): Response<List<Photo>>
+    suspend fun sendPhoto(@Part photo: RealmList<MultipartBody.Part>): Response<RealmList<Photo>>
 
+    @Headers("Content-Type: application/json")
     @FormUrlEncoded
-    @POST("login")
+    @POST("auth")
     suspend fun loginUser(
         @Field("login") login: String,
         @Field("pass") pass: String

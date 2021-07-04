@@ -7,44 +7,33 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class AppAuth private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
-    private val idKey = "id"
     private val tokenKey = "token"
 
     private val _authStateFlow: MutableStateFlow<AuthState>
 
     init {
-        val id = prefs.getLong(idKey, 0)
+
         val token = prefs.getString(tokenKey, null)
 
-        if (id == 0L || token == null) {
+        if (token == null) {
             _authStateFlow = MutableStateFlow(AuthState())
             with(prefs.edit()) {
                 clear()
                 apply()
             }
         } else {
-            _authStateFlow = MutableStateFlow(AuthState(id, token))
+            _authStateFlow = MutableStateFlow(AuthState(token))
         }
     }
 
     val authStateFlow: StateFlow<AuthState> = _authStateFlow.asStateFlow()
 
     @Synchronized
-    fun setAuth(id: Long, token: String) {
-        _authStateFlow.value = AuthState(id, token)
+    fun setAuth(token: String) {
+        _authStateFlow.value = AuthState(token)
         with(prefs.edit()) {
-            putLong(idKey, id)
             putString(tokenKey, token)
             apply()
-        }
-    }
-
-    @Synchronized
-    fun removeAuth() {
-        _authStateFlow.value = AuthState()
-        with(prefs.edit()) {
-            clear()
-            commit()
         }
     }
 
@@ -68,4 +57,4 @@ class AppAuth private constructor(context: Context) {
 
 }
 
-data class AuthState(val id: Long = 0, val token: String? = null)
+data class AuthState(val token: String? = null)

@@ -1,4 +1,4 @@
-package com.example.mycheckingtheproduct.app
+package com.example.mycheckingtheproduct.app.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,11 +13,12 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Realm.init(this)
-        val configuration = RealmConfiguration.Builder()
-            .name("myDataBase.realm")
-            .deleteRealmIfMigrationNeeded()
+        val config = RealmConfiguration.Builder()
+            .allowQueriesOnUiThread(true)
+            .allowWritesOnUiThread(true)
             .build()
-        Realm.setDefaultConfiguration(configuration)
+        Realm.setDefaultConfiguration(config)
+
         AppAuth.initApp(this)
     }
 }
